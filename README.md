@@ -9,6 +9,7 @@ This configuration enables USB HID device support (keyboards, mice, touchpads, g
 - Keyboard with integrated touchpad
 - LED control (Caps Lock, Num Lock, Scroll Lock)
 - Full ASCII character support including special keys
+- QR/Barcode Scanners
 
 ### Mice
 - Boot protocol mice
