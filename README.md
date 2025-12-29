@@ -234,8 +234,10 @@ See the detailed documentation for comprehensive troubleshooting:
 ├── USB_HIDX_DOCUMENTATION.rst     # RST format for ESPHome docs
 ├── USB_I2C_DOCUMENTATION.md       # Complete USB I2C documentation
 ├── USB_I2C_DOCUMENTATION.rst      # RST format for ESPHome docs
-├── usb_hidx.h                     # Legacy header (deprecated)
-└── usb-hidx-test.yaml             # Legacy test config (deprecated)
+├── usb-hidx-test.yaml             # Example configuration
+└── backup/                        # Legacy files
+    ├── usb_hidx.h                 # Original header file
+    └── usb-hidx-test.yaml         # Original test config
 ```
 
 ## Contributing
