@@ -1,237 +1,101 @@
 esphome:
-  comment: "USB HID Test - NonaSuomy"
-  name: usb-hidx-test
-  friendly_name: USB HID Test
-  includes:
-    - usb_hidx.h
-  on_boot:
-    priority: 600
-    then:
-      - lambda: |-
-          ESP_LOGI("main", "Boot sequence starting USB HID setup...");
-          setup_usb_keyboard();
-          ESP_LOGI("main", "Boot sequence USB HID setup complete");
+  name: esp32-usb-hidx
+  friendly_name: ESP32 USB HIDX
 
 esp32:
-  variant: esp32p4
-  flash_size: 16MB
-  cpu_frequency: 360MHz
+  variant: esp32s3 #esp32p4
   framework:
     type: esp-idf
-    advanced:
-      enable_idf_experimental_features: true
     sdkconfig_options:
       CONFIG_USB_HOST_ENABLE: y
-      CONFIG_USB_HOST_HW_BUFFER_BIAS_BALANCED: y
-      CONFIG_USB_HOST_HUB_MULTI_LEVEL: y
-      CONFIG_USB_HOST_MSC_ENABLE: y
-      CONFIG_USB_HOST_HID_ENABLE: y
+      #CONFIG_USB_HOST_HCD_DWC_NUM_CHANNELS: "8" # S3 seems only can handle 3 devices: 1 USB HUB + 2 USB Devices 
+      #CONFIG_ESP32S3_BROWNOUT_DET: "n"
 
+external_components:
+  #- source:
+  #    type: local
+  #    path: components
+  - source: github://NonaSuomy/esphome@hidx-testing-001
+    components: [usb_hidx]
+    refresh: 0s
+
+# Enable logging
 logger:
-  level: INFO
+  level: DEBUG
   hardware_uart: UART0
-  baud_rate: 115200
   logs:
-    sensor: WARN
-    esp-idf: ERROR
-
-esp32_hosted:
-  variant:     ESP32C6
-  reset_pin:   GPIO54
-  cmd_pin:     GPIO19
-  clk_pin:     GPIO18
-  d0_pin:      GPIO14
-  d1_pin:      GPIO15
-  d2_pin:      GPIO16
-  d3_pin:      GPIO17
-  active_high: true
-
-wifi:
-  ssid:        !secret wifi_ssid2
-  password:    !secret wifi_password2
-  use_address: !secret use_address_wifi013
-
-api:
-  encryption:
-    key: !secret encryption_key013
-
-ota:
-  - platform: esphome
-    password: !secret ota_pass013
+    usb_hidx: DEBUG
+    usb_host: DEBUG
 
 web_server:
   version: 3
   port: 80
 
-psram:
-  mode: hex
-  speed: 200MHz
-
+# USB Host configuration
 usb_host:
   enable_hubs: true
 
-# Global variables for all HID devices
-globals:
-  # Keyboard
-  - id: keyboard_buffer
-    type: std::string
-    initial_value: '""'
-  - id: caps_lock_state
-    type: bool
-    initial_value: 'false'
-  - id: num_lock_state
-    type: bool
-    initial_value: 'false'
-  - id: scroll_lock_state
-    type: bool
-    initial_value: 'false'
-  - id: keyboard_enter_pressed
-    type: bool
-    initial_value: 'false'
-  - id: keyboard_esc_pressed
-    type: bool
-    initial_value: 'false'
-  
-  # Mouse
-  - id: mouse_left_button
-    type: bool
-    initial_value: 'false'
-  - id: mouse_right_button
-    type: bool
-    initial_value: 'false'
-  
-  # Touchpad
-  - id: touchpad_clicked
-    type: bool
-    initial_value: 'false'
-  - id: touchpad_x
-    type: int
-    initial_value: '0'
-  - id: touchpad_y
-    type: int
-    initial_value: '0'
-  
-  # Gamepad
-  - id: gamepad_button_a
-    type: bool
-    initial_value: 'false'
-  - id: gamepad_button_b
-    type: bool
-    initial_value: 'false'
-  - id: gamepad_button_home
-    type: bool
-    initial_value: 'false'
+# USB HIDX Component
+usb_hidx:
+  hub: true
+  keyboard:
+    device_id: keyboard_main
+    layout: us  # Options: us, uk, de, fr, es
+  mouse:
+    device_id: mouse_main
+  gamepad:
+    device_id: gamepad_main
+    type: generic
 
-# Text sensors
+# Keyboard support
 text_sensor:
-  - platform: template
+  - platform: usb_hidx
     name: "Keyboard Input"
-    id: keyboard_input
-    update_interval: never
-    lambda: |-
-      return id(keyboard_buffer);
+    type: keyboard
 
-# Binary sensors for HID devices
 binary_sensor:
-  # Keyboard
-  - platform: template
-    name: "Keyboard Enter"
-    id: keyboard_enter_sensor
-    lambda: |-
-      return id(keyboard_enter_pressed);
-  
-  - platform: template
+# Keyboard keys
+  - platform: usb_hidx
     name: "Keyboard ESC"
-    id: keyboard_esc_sensor
-    lambda: |-
-      return id(keyboard_esc_pressed);
-  
-  # Mouse
-  - platform: template
+    type: keyboard
+    key: 0x29  # ESC key
+  - platform: usb_hidx
+    name: "Keyboard Enter"
+    type: keyboard
+    key: 0x28  # Enter key
+# Mouse support
+  - platform: usb_hidx
     name: "Mouse Left Button"
-    id: mouse_left_sensor
-    lambda: |-
-      return id(mouse_left_button);
-  
-  - platform: template
+    type: mouse
+    left_button: true
+  - platform: usb_hidx
     name: "Mouse Right Button"
-    id: mouse_right_sensor
-    lambda: |-
-      return id(mouse_right_button);
-  
-  # Touchpad
-  - platform: template
-    name: "Touchpad Click"
-    id: touchpad_click_sensor
-    lambda: |-
-      return id(touchpad_clicked);
-  
-  # Gamepad
-  - platform: template
-    name: "Gamepad A Button"
-    id: gamepad_a_sensor
-    lambda: |-
-      return id(gamepad_button_a);
-  
-  - platform: template
-    name: "Gamepad B Button"
-    id: gamepad_b_sensor
-    lambda: |-
-      return id(gamepad_button_b);
-  
-  - platform: template
-    name: "Gamepad Home Button"
-    id: gamepad_home_sensor
-    lambda: |-
-      return id(gamepad_button_home);
+    type: mouse
+    right_button: true
+  - platform: usb_hidx
+    name: "Mouse Middle Button"
+    type: mouse
+    middle_button: true
+# Gamepad support
+  - platform: usb_hidx
+    name: "Gamepad A"
+    type: gamepad
+    button_a: true
+  - platform: usb_hidx
+    name: "Gamepad B"
+    type: gamepad
+    button_b: true
 
-# Sensors for touchpad coordinates
 sensor:
-  - platform: template
-    name: "Touchpad X"
-    id: touchpad_x_sensor
-    lambda: |-
-      return id(touchpad_x);
-    update_interval: 50ms
-  
-  - platform: template
-    name: "Touchpad Y"
-    id: touchpad_y_sensor
-    lambda: |-
-      return id(touchpad_y);
-    update_interval: 50ms
-
-# USB event processing
-interval:
-  - interval: 10ms
-    then:
-      - lambda: |-
-          extern void process_usb_events();
-          process_usb_events();
-
-# Test buttons
-button:
-  - platform: template
-    name: "Clear Keyboard Input"
-    on_press:
-      - lambda: |-
-          id(keyboard_buffer) = "";
-      - text_sensor.template.publish:
-          id: keyboard_input
-          state: ""
-  
-  - platform: template
-    name: "Toggle Caps Lock LED"
-    on_press:
-      - lambda: |-
-          id(caps_lock_state) = !id(caps_lock_state);
-          extern void update_keyboard_leds();
-          update_keyboard_leds();
-  
-  - platform: template
-    name: "Toggle Num Lock LED"
-    on_press:
-      - lambda: |-
-          id(num_lock_state) = !id(num_lock_state);
-          extern void update_keyboard_leds();
-          update_keyboard_leds();
+  - platform: usb_hidx
+    name: "Mouse X Movement"
+    type: mouse
+    x_delta: true
+  - platform: usb_hidx
+    name: "Mouse Y Movement"
+    type: mouse
+    y_delta: true
+  - platform: usb_hidx
+    name: "Mouse Wheel"
+    type: mouse
+    wheel: true
