@@ -6,7 +6,7 @@ USB I2C Bridge
     :image: usb.svg
     :keywords: USB, I2C, MCP2221A, CP2112, FT260, Bridge, Sensor
 
-The ``usb_i2c`` component allows you to use USB-to-I2C bridge devices to connect I2C sensors to your ESP32-S3 via USB. This is useful when you need to connect I2C devices but don't have available I2C pins, or when you want to isolate sensors from the main board.
+The ``usb_i2c`` component allows you to use USB-to-I2C bridge devices to connect I2C sensors to your ESP32-P4, ESP32-S3, or ESP32-S2 via USB. This is useful when you need to connect I2C devices but don't have available I2C pins, or when you want to isolate sensors from the main board.
 
 .. code-block:: yaml
 
@@ -270,7 +270,7 @@ Complete Example
 Hardware Requirements
 ---------------------
 
-- **ESP32-S3** with USB OTG support (required)
+- **ESP32-P4, ESP32-S3, or ESP32-S2** with USB OTG support (required)
 - **USB-to-I2C bridge** (MCP2221A recommended)
 - **USB OTG cable** or USB-A adapter
 - **I2C sensors** with 3.3V or 5V support

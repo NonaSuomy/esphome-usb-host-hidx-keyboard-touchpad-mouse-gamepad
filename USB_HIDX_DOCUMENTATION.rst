@@ -6,7 +6,7 @@ USB HIDX Component
     :image: usb.svg
     :keywords: USB, HID, Keyboard, Mouse, Gamepad, Controller, Xbox, PlayStation, Nintendo Switch
 
-The ``usb_hidx`` component allows you to connect USB HID (Human Interface Device) peripherals to your ESP32-S3 and expose them to Home Assistant. This includes keyboards, mice, gaming controllers, touchscreens, and USB-to-I2C bridges.
+The ``usb_hidx`` component allows you to connect USB HID (Human Interface Device) peripherals to your ESP32-P4, ESP32-S3, or ESP32-S2 and expose them to Home Assistant. This includes keyboards, mice, gaming controllers, touchscreens, and USB-to-I2C bridges.
 
 .. code-block:: yaml
 
@@ -383,7 +383,7 @@ Complete Example
 Hardware Requirements
 ---------------------
 
-- **ESP32-S3** with USB OTG support (required)
+- **ESP32-P4, ESP32-S3, or ESP32-S2** with USB OTG support (required)
 - **USB OTG cable** or USB-A adapter
 - **External power** recommended for multiple devices or high-power devices
 - **USB hub** (optional) for connecting multiple devices
